@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>平面度误差测量与三维可视化 | 江汉大学互换性课程</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #eef2f7;
+            color: #1e2f3e;
+        }
+        /* 整体布局 */
+        .app-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 36px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        /* 头部 */
+        .hero {
+            background: linear-gradient(135deg, #0b3b4f 0%, #1a5d7a 100%);
+            padding: 20px 32px;
+            color: white;
+        }
+        .hero h1 {
+            margin: 0 0 6px;
+            font-size: 1.9rem;
+        }
+        .university-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+            border-top: 1px solid rgba(255,255,255,0.25);
+            padding-top: 16px;
+        }
+        .jhun-symbol {
+            background: white;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .jhun-inner {
+            background: #005b96;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px;
+            color: #ffcd7e;
+        }
+        .team-label {
+            background: rgba(255,255,255,0.15);
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-weight: 500;
+        }
+        /* 内容区域: 左控制区 + 右三维图 */
+        .main-dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            padding: 24px 28px;
+        }
+        .control-panel {
+            flex: 1.2;
+            min-width: 320px;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e2edf2;
+            padding: 20px;
+        }
+        .viz-panel {
+            flex: 2;
+            min-width: 480px;
+            background: #fafcff;
+            border-radius: 28px;
+            border: 1px solid #dee8ef;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #164a63;
+            border-left: 5px solid #1a7ca0;
+            padding-left: 16px;
+            margin: 0 0 16px 0;
+        }
+        .matrix-input {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            margin: 12px 0;
+        }
+        .matrix-input th, .matrix-input td {
+            border: 1px solid #cbdde9;
+            padding: 8px;
+            text-align: center;
+        }
+        .matrix-input th {
+            background: #eef3fc;
+        }
+        .matrix-input input {
+            width: 80px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #bdd4e2;
+            border-radius: 16px;
+            font-size: 0.9rem;
+        }
+        .coord-hint {
+            background: #f0f6fb;
+            border-radius: 20px;
+            padding: 8px 12px;
+            font-size: 0.75rem;
+            margin: 12px 0;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 15px;
+        }
+        .btn {
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary {
+            background: #1a5d7a;
+            color: white;
+        }
+        .btn-primary:hover { background: #0e425a; transform: translateY(-2px);}
+        .btn-secondary {
+            background: #e2eaf1;
+            color: #1f5e7e;
+        }
+        .result-card {
+            background: #f8fbfe;
+            border-radius: 24px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            border-bottom: 1px dashed #cde0ea;
+            padding: 8px 0;
+        }
+        .tolerance-input {
+            margin: 12px 0;
+        }
+        .tolerance-input label {
+            font-weight: 600;
+        }
+        .tolerance-input input {
+            width: 130px;
+            padding: 8px;
+            border-radius: 28px;
+            border: 1px solid #cbdae4;
+            margin-left: 12px;
+        }
+        .verdict {
+            padding: 12px;
+            border-radius: 28px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+        .verdict.pass { background: #dff6ef; color: #136b48; border: 1px solid #9fd3be; }
+        .verdict.fail { background: #ffe5e0; color: #bc3f2c; border: 1px solid #e6b3a8; }
+        .copyright {
+            text-align: center;
+            padding: 16px;
+            font-size: 0.75rem;
+            border-top: 1px solid #e2ecf3;
+            color: #5c6f87;
+        }
+        @media (max-width: 900px) {
+            .main-dashboard { flex-direction: column; }
+            .viz-panel { min-width: auto; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <div class="hero">
+        <h1>📐 平面度误差测量与评定系统 · 三维可视化</h1>
+        <p>最小区域法评定 | 千分表3×3网格测量 | 包容平面法向距离示意</p>
+        <div class="university-row">
+            <div class="jhun-symbol"><div class="jhun-inner">江</div></div>
+            <div class="team-label">🎓 <strong>江汉大学《互换性原理与测量技术》课程团队</strong>  |  精密测量实验平台</div>
+        </div>
+    </div>
+
+    <div class="main-dashboard">
+        <!-- 左侧控制区 -->
+        <div class="control-panel">
+            <div class="section-title">📊 测量数据输入 (3×3 网格)</div>
+            <div class="coord-hint">
+                📍 坐标 (X,Y) 单位mm : 行1(Y=0)从左到右，行2(Y=50)，行3(Y=100)；X方向0,50,100。<br>
+                ✏️ 输入千分表相对高度读数 (μm)
+            </div>
+            <table class="matrix-input" id="pointsTable">
+                <thead><tr><th>测点</th><th>P1 (0,0)</th><th>P2 (50,0)</th><th>P3 (100,0)</th></tr></thead>
+                <tbody>
+                    <tr><th>行1 (Y=0)</th><td><input type="number" id="z00" value="0" step="any"></td><td><input type="number" id="z01" value="0" step="any"></td><td><input type="number" id="z02" value="0" step="any"></td></tr>
+                    <tr><th>行2 (Y=50)</th><td><input type="number" id="z10" value="0" step="any"></td><td><input type="number" id="z11" value="0" step="any"></td><td><input type="number" id="z12" value="0" step="any"></td></tr>
+                    <tr><th>行3 (Y=100)</th><td><input type="number" id="z20" value="0" step="any"></td><td><input type="number" id="z21" value="0" step="any"></td><td><input type="number" id="z22" value="0" step="any"></td></tr>
+                </tbody>
+            </table>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="calcAndVisualizeBtn">🔍 计算平面度 & 更新三维图</button>
+                <button class="btn btn-secondary" id="resetBtn">⟳ 重置数据</button>
+                <button class="btn btn-secondary" id="exampleBtn">📋 载入示例</button>
+            </div>
+            <div class="result-card">
+                <div class="result-item"><span>📐 最小区域法平面度误差 f :</span><span id="flatnessValue" style="font-weight:800; font-size:1.4rem;">—</span><span> μm</span></div>
+                <div class="tolerance-input">
+                    <label>📏 设计平面度公差 T :</label>
+                    <input type="number" id="toleranceInput" value="25.0" step="any">
+                </div>
+                <div id="verdictBox" class="verdict">等待计算</div>
+            </div>
+            <div class="coord-hint" style="margin-top:8px;">
+                💡 最小区域法通过枚举三点组合及两点方向，获取最小平行平面带宽。<br>
+                三维图中：半透明红色平面（上包容面）和蓝色平面（下包容面），球体为实测点，⭐星形标记为上下最远点（接触点），白色虚线为最远点到对应平面的法向连线。
+            </div>
+        </div>
+
+        <!-- 右侧三维可视化 -->
+        <div class="viz-panel">
+            <div id="canvasContainer" style="width:100%; height:500px; background:#f5f9ff; position:relative;">
+                <canvas id="threeCanvas" style="width:100%; height:100%; display:block;"></canvas>
+            </div>
+            <div style="font-size:0.7rem; text-align:center; padding:6px; background:#f0f4f9;">Three.js 三维场景 | 包容平面距离 = 平面度误差 | 法向距离示意</div>
+        </div>
+    </div>
+    <div class="copyright">
+        © 江汉大学《互换性原理与测量技术》课程团队 · 基于最小区域法评定 & Three.js三维可视化
+    </div>
+</div>
+
+<!-- 引入Three.js核心库及扩展 -->
+<script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+        }
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+    
+    // ---- 测点定义 (9个点坐标 mm) ----
+    const pointCoords = [
+        { x: 0, y: 0 },   // (0,0)    idx0
+        { x: 50, y: 0 },  // (50,0)   idx1
+        { x: 100, y: 0 }, // (100,0)  idx2
+        { x: 0, y: 50 },  // (0,50)   idx3
+        { x: 50, y: 50 }, // (50,50)  idx4
+        { x: 100, y: 50 },// (100,50) idx5
+        { x: 0, y: 100 }, // (0,100)  idx6
+        { x: 50, y: 100 },// (50,100) idx7
+        { x: 100, y: 100 }// (100,100)idx8
+    ];
+    
+    // 获取9个输入读数(μm)
+    function getReadingsMicrometer() {
+        const ids = ['z00','z01','z02','z10','z11','z12','z20','z21','z22'];
+        return ids.map(id => parseFloat(document.getElementById(id).value) || 0);
+    }
+    
+    // ---------- 核心: 最小区域法 + 返回最佳平面参数 (带宽、法向量、上下偏移量、接触点) ----------
+    function computeMinimumZoneWithPlane(points3d_mm) {
+        // points3d_mm: 数组 {x,y,z} 单位mm
+        const N = points3d_mm.length;
+        if (N < 3) return null;
+        
+        let bestBandwidth = Infinity;
+        let bestNormal = null;
+        let bestLowerOffset = 0, bestUpperOffset = 0;
+        let bestMinPointsIdx = [];
+        let bestMaxPointsIdx = [];
+        let bestRefPoint = null;
+        
+        // 枚举三点组合计算带宽和法向量
+        for (let i = 0; i < N-2; i++) {
+            for (let j = i+1; j < N-1; j++) {
+                for (let k = j+1; k < N; k++) {
+                    const p1 = points3d_mm[i], p2 = points3d_mm[j], p3 = points3d_mm[k];
+                    // 计算法向量
+                    const u = { x: p2.x - p1.x, y: p2.y - p1.y, z: p2.z - p1.z };
+                    const v = { x: p3.x - p1.x, y: p3.y - p1.y, z: p3.z - p1.z };
+                    let nx = u.y * v.z - u.z * v.y;
+                    let ny = u.z * v.x - u.x * v.z;
+                    let nz = u.x * v.y - u.y * v.x;
+                    let norm = Math.hypot(nx, ny, nz);
+                    if (norm < 1e-10) continue;
+                    nx /= norm; ny /= norm; nz /= norm;
+                    // 计算投影值
+                    let projVals = points3d_mm.map(p => (p.x - p1.x)*nx + (p.y - p1.y)*ny + (p.z - p1.z)*nz);
+                    let maxD = Math.max(...projVals);
+                    let minD = Math.min(...projVals);
+                    let bandwidth = maxD - minD;
+                    if (bandwidth < bestBandwidth - 1e-8) {
+                        bestBandwidth = bandwidth;
+                        bestNormal = { x: nx, y: ny, z: nz };
+                        bestLowerOffset = minD;
+                        bestUpperOffset = maxD;
+                        bestRefPoint = p1;
+                        // 记录接触点 (极值点)
+                        let maxIdx = projVals.reduce((imax, val, idx) => val >= projVals[imax] ? idx : imax, 0);
+                        let minIdx = projVals.reduce((imin, val, idx) => val <= projVals[imin] ? idx : imin, 0);
+                        bestMaxPointsIdx = [maxIdx];
+                        bestMinPointsIdx = [minIdx];
+                        // 可能有多个等值极值点
+                        for (let idx=0; idx<N; idx++) {
+                            if (Math.abs(projVals[idx] - maxD) < 1e-8 && idx !== maxIdx) bestMaxPointsIdx.push(idx);
+                            if (Math.abs(projVals[idx] - minD) < 1e-8 && idx !== minIdx) bestMinPointsIdx.push(idx);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 补充两点法向量迭代(提高稳定性)
+        for (let i=0; i<N-1; i++) {
+            for (let j=i+1; j<N; j++) {
+                const pA = points3d_mm[i], pB = points3d_mm[j];
+                const dx = pB.x-pA.x, dy = pB.y-pA.y, dz = pB.z-pA.z;
+                const len = Math.hypot(dx,dy,dz);
+                if(len<1e-8) continue;
+                // 构造垂直方向: 取(0,0,1) 和方向向量的叉积得到切向
+                let ref = {x:0,y:0,z:1};
+                let crossX = ref.y*dz - ref.z*dy;
+                let crossY = ref.z*dx - ref.x*dz;
+                let crossZ = ref.x*dy - ref.y*dx;
+                let lenCross = Math.hypot(crossX,crossY,crossZ);
+                if(lenCross>1e-8){
+                    let n1x = crossX/lenCross, n1y = crossY/lenCross, n1z = crossZ/lenCross;
+                    let proj = points3d_mm.map(p => n1x*(p.x-pA.x)+n1y*(p.y-pA.y)+n1z*(p.z-pA.z));
+                    let maxD = Math.max(...proj), minD = Math.min(...proj);
+                    let bw = maxD-minD;
+                    if(bw < bestBandwidth-1e-8){
+                        bestBandwidth = bw;
+                        bestNormal = {x:n1x,y:n1y,z:n1z};
+                        bestLowerOffset = minD;
+                        bestUpperOffset = maxD;
+                        bestRefPoint = pA;
+                        let maxIdx = proj.reduce((imax,val,idx)=>val>=proj[imax]?idx:imax,0);
+                        let minIdx = proj.reduce((imin,val,idx)=>val<=proj[imin]?idx:imin,0);
+                        bestMaxPointsIdx = [maxIdx];
+                        bestMinPointsIdx = [minIdx];
+                    }
+                }
+            }
+        }
+        
+        if(bestBandwidth===Infinity) return null;
+        // 平面度误差(μm)
+        const flatness_mm = bestBandwidth;
+        const flatness_um = flatness_mm * 1000;
+        
+        // 计算平面方程参数: 下包容面: n·P = d_lower; 上包容面: n·P = d_upper (d = offset + n·refPoint)
+        const ref = bestRefPoint;
+        const d_ref = bestNormal.x*ref.x + bestNormal.y*ref.y + bestNormal.z*ref.z;
+        const d_lower = d_ref + bestLowerOffset;
+        const d_upper = d_ref + bestUpperOffset;
+        
+        return {
+            flatness_um: flatness_um,
+            normal: bestNormal,
+            d_lower: d_lower,
+            d_upper: d_upper,
+            lowerPointsIdx: bestMinPointsIdx,
+            upperPointsIdx: bestMaxPointsIdx,
+            points: points3d_mm
+        };
+    }
+    
+    // ---------- Three.js 场景管理 ----------
+    let scene, camera, renderer, labelRenderer, controls, currentGroup = null;
+    
+    function initThree() {
+        const container = document.getElementById('canvasContainer');
+        const width = container.clientWidth;
+        const height = 500;
+        
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xf5f9ff);
+        camera = new THREE.PerspectiveCamera(45, width/height, 0.1, 1000);
+        camera.position.set(180, 180, 180);
+        camera.lookAt(50, 50, 0);
+        
+        renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeCanvas'), antialias: true });
+        renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        
+        labelRenderer = new CSS2DRenderer();
+        labelRenderer.setSize(width, height);
+        labelRenderer.domElement.style.position = 'absolute';
+        labelRenderer.domElement.style.top = '0px';
+        labelRenderer.domElement.style.left = '0px';
+        labelRenderer.domElement.style.pointerEvents = 'none';
+        container.appendChild(labelRenderer.domElement);
+        
+        controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = false;
+        controls.enableZoom = true;
+        
+        // 辅助: 坐标轴 + 网格地面
+        const axesHelper = new THREE.AxesHelper(80);
+        scene.add(axesHelper);
+        const gridHelper = new THREE.GridHelper(200, 20, 0x88aacc, 0xcceeff);
+        gridHelper.position.y = -0.01;
+        scene.add(gridHelper);
+        
+        // 添加环境光
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+        dirLight.position.set(1,2,1);
+        scene.add(dirLight);
+        
+        animate();
+    }
+    
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+        if(labelRenderer) labelRenderer.render(scene, camera);
+    }
+    
+    // 清空场景中除灯光辅助外的自定义物体
+    function clearVisualization() {
+        if(!scene) return;
+        const toRemove = [];
+        scene.traverse(obj => {
+            if(obj.isMesh || obj.isLineSegments || obj.isLine || obj.isPoints || obj.isCSS2DObject) {
+                if(obj !== scene && !(obj instanceof THREE.AxesHelper) && !(obj instanceof THREE.GridHelper) && !(obj instanceof THREE.DirectionalLight) && !(obj instanceof THREE.AmbientLight)) {
+                    toRemove.push(obj);
+                }
+            }
+        });
+        toRemove.forEach(obj => scene.remove(obj));
+    }
+    
+    // 根据最小区域法结果绘制三维图形：包容平面、点云、最远点、法向连线
+    function render3DFromResult(result) {
+        if(!scene) initThree();
+        clearVisualization();
+        if(!result) return;
+        
+        const { points, normal, d_lower, d_upper, lowerPointsIdx, upperPointsIdx, flatness_um } = result;
+        // 绘制点云 (球体)
+        const sphereGeometry = new THREE.SphereGeometry(2.2, 32, 16);
+        points.forEach((p, idx) => {
+            const material = new THREE.MeshStandardMaterial({ color: 0x3a86ff, roughness: 0.3, metalness: 0.1 });
+            const sphere = new THREE.Mesh(sphereGeometry, material);
+            sphere.position.set(p.x, p.z, p.y); // Three.js Y向上，原本坐标 (x, y_mm, z_mm) => 转为 (x, 高度, y)
+            sphere.userData = { idx, val: p.z };
+            scene.add(sphere);
+            
+            // CSS2D 文字标签
+            const div = document.createElement('div');
+            div.textContent = `${p.z.toFixed(2)} mm`;
+            div.style.color = '#1f5e7e';
+            div.style.fontSize = '12px';
+            div.style.fontWeight = 'bold';
+            div.style.background = 'rgba(255,255,240,0.8)';
+            div.style.padding = '2px 6px';
+            div.style.borderRadius = '12px';
+            div.style.border = '1px solid #88aacc';
+            const label = new CSS2DObject(div);
+            label.position.set(p.x, p.z, p.y);
+            scene.add(label);
+        });
+        
+        // 绘制上下包容平面 (矩形范围 X: -10~110, Y: -10~110)
+        const planeWidth = 140;
+        const planeHeight = 140;
+        const centerX = 50, centerY = 50;
+        // 辅助函数: 创建平面 mesh (半透明，双面)
+        function addPlane(offsetD, color, opacity) {
+            // 求平面方程: normal · P = offsetD, 需要找到平面上一点使得满足方程且位于矩形中心。
+            // 解: 取点P0 = (cx, cy, z0) 使得 normal·P0 = offsetD
+            const nx = normal.x, ny = normal.y, nz = normal.z;
+            const cx = centerX, cy = centerY;
+            // 计算 z0 = (offsetD - nx*cx - ny*cy)/nz   (假定nz不为0)
+            if(Math.abs(nz) < 1e-5) return; // 若平面几乎垂直，简单处理，但本场景法向量接近竖直，稳妥
+            const z0 = (offsetD - nx*cx - ny*cy) / nz;
+            const planeGeom = new THREE.PlaneGeometry(planeWidth, planeHeight);
+            const material = new THREE.MeshPhongMaterial({ color: color, side: THREE.DoubleSide, transparent: true, opacity: opacity });
+            const mesh = new THREE.Mesh(planeGeom, material);
+            // 旋转平面使其法线为 (nx,ny,nz)
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(
+                new THREE.Vector3(0, 0, 1),
+                new THREE.Vector3(nx, ny, nz).normalize()
+            );
+            mesh.quaternion.copy(quaternion);
+            mesh.position.set(cx, z0, cy);
+            scene.add(mesh);
+            // 边框
+            const edgesGeo = new THREE.EdgesGeometry(planeGeom);
+            const edgesMat = new THREE.LineBasicMaterial({ color: color });
+            const wire = new THREE.LineSegments(edgesGeo, edgesMat);
+            mesh.add(wire);
+        }
+        
+        addPlane(d_lower, 0x3399ff, 0.28);  // 下包容面蓝
+        addPlane(d_upper, 0xff6633, 0.28);  // 上包容面红
+        
+        // 标记最远接触点 (最高点/最低点) 用较大的星形 or 球体 + 光环
+        const starMat = new THREE.MeshStandardMaterial({ color: 0xffaa44, emissive: 0x442200 });
+        const minMat = new THREE.MeshStandardMaterial({ color: 0x44aaff, emissive: 0x004466 });
+        lowerPointsIdx.forEach(idx => {
+            const p = points[idx];
+            const star = new THREE.Mesh(new THREE.SphereGeometry(3.5, 24, 18), starMat);
+            star.position.set(p.x, p.z, p.y);
+            scene.add(star);
+            // 添加CSS标签
+            const div = document.createElement('div');
+            div.textContent = `▼下接触点 (${p.z.toFixed(2)}mm)`;
+            div.style.color = '#d97706';
+            div.style.fontSize = '11px';
+            div.style.background = '#fff2e0';
+            div.style.padding = '2px 5px';
+            div.style.borderRadius = '12px';
+            const label = new CSS2DObject(div);
+            label.position.set(p.x, p.z+3, p.y);
+            scene.add(label);
+        });
+        upperPointsIdx.forEach(idx => {
+            const p = points[idx];
+            const star = new THREE.Mesh(new THREE.SphereGeometry(3.8, 24, 18), minMat);
+            star.position.set(p.x, p.z, p.y);
+            scene.add(star);
+            const div = document.createElement('div');
+            div.textContent = `▲上接触点 (${p.z.toFixed(2)}mm)`;
+            div.style.color = '#c2410c';
+            div.style.background = '#ffe8e0';
+            div.style.padding = '2px 5px';
+            div.style.borderRadius = '12px';
+            const label = new CSS2DObject(div);
+            label.position.set(p.x, p.z+3, p.y);
+            scene.add(label);
+        });
+        
+        // 绘制法向连线: 从每个最远点 沿法向投影到另一侧平面的连线示意? 为了直观，绘制点到其所属平面的垂线(直线沿法线方向)
+        // 下接触点: 沿着法线方向向上平面画线；上接触点向下平面画线，展示包容间距
+        const { normal: n, d_lower: dl, d_upper: du } = result;
+        function drawProjectionLine(point, targetD, colorLine) {
+            // 点 P, 平面 n·X = targetD, 垂足 Q = P + t*n, 满足 n·(P+t*n)=targetD => t = (targetD - n·P)
+            const nx=n.x, ny=n.y, nz=n.z;
+            const dotP = nx*point.x + ny*point.y + nz*point.z;
+            const t = targetD - dotP;
+            const Q = { x: point.x + t*nx, y: point.y + t*ny, z: point.z + t*nz };
+            const pointsArr = [
+                new THREE.Vector3(point.x, point.z, point.y),
+                new THREE.Vector3(Q.x, Q.z, Q.y)
+            ];
+            const geometry = new THREE.BufferGeometry().setFromPoints(pointsArr);
+            const materialLine = new THREE.LineBasicMaterial({ color: colorLine, linewidth: 2 });
+            const lineObj = new THREE.Line(geometry, materialLine);
+            scene.add(lineObj);
+        }
+        
+        lowerPointsIdx.forEach(idx => {
+            const p = points[idx];
+            drawProjectionLine(p, du, 0xffaa77);
+        });
+        upperPointsIdx.forEach(idx => {
+            const p = points[idx];
+            drawProjectionLine(p, dl, 0x77aaff);
+        });
+        
+        // 可选：画出法向量箭头示意
+        const arrowOrigin = { x: 50, y: 50, z: (dl+du)/2 };
+        const normVec = new THREE.Vector3(n.x, n.z, n.y).normalize(); // 注意坐标轴转换
+        const arrowHelper = new THREE.ArrowHelper(normVec, new THREE.Vector3(50, arrowOrigin.z, 50), 25, 0xffaa55, 8, 5);
+        scene.add(arrowHelper);
+        
+        // 显示平面度误差文本的 CSS2D
+        const infoDiv = document.createElement('div');
+        infoDiv.textContent = `平面度 f = ${flatness_um.toFixed(2)} μm`;
+        infoDiv.style.backgroundColor = '#1e3a5f';
+        infoDiv.style.color = 'white';
+        infoDiv.style.padding = '4px 12px';
+        infoDiv.style.borderRadius = '24px';
+        infoDiv.style.fontWeight = 'bold';
+        const infoLabel = new CSS2DObject(infoDiv);
+        infoLabel.position.set(20, 35, -15);
+        scene.add(infoLabel);
+    }
+    
+    // 主控逻辑：读取数据 -> 计算最小区域平面 -> 更新UI -> 三维渲染
+    function processAndVisualize() {
+        const readingsMicron = getReadingsMicrometer();
+        // 构建点云 (单位mm)
+        let points3d = [];
+        for (let i=0; i<pointCoords.length; i++) {
+            let z_mm = readingsMicron[i] / 1000.0;
+            points3d.push({
+                x: pointCoords[i].x,
+                y: pointCoords[i].y,
+                z: z_mm
+            });
+        }
+        const result = computeMinimumZoneWithPlane(points3d);
+        if(!result) {
+            alert("计算失败，请检查测点数据");
+            return;
+        }
+        // 更新UI
+        document.getElementById('flatnessValue').innerHTML = result.flatness_um.toFixed(3);
+        const tolVal = parseFloat(document.getElementById('toleranceInput').value) || 0;
+        const verdictDiv = document.getElementById('verdictBox');
+        if(result.flatness_um <= tolVal) {
+            verdictDiv.innerHTML = `✅ 合格  (f = ${result.flatness_um.toFixed(3)} μm ≤ T = ${tolVal} μm)`;
+            verdictDiv.className = "verdict pass";
+        } else {
+            verdictDiv.innerHTML = `❌ 不合格 (f = ${result.flatness_um.toFixed(3)} μm > T = ${tolVal} μm)`;
+            verdictDiv.className = "verdict fail";
+        }
+        // 三维渲染
+        render3DFromResult(result);
+    }
+    
+    // 重置输入
+    function resetData() {
+        const ids = ['z00','z01','z02','z10','z11','z12','z20','z21','z22'];
+        ids.forEach(id => document.getElementById(id).value = 0);
+        document.getElementById('flatnessValue').innerHTML = '—';
+        document.getElementById('verdictBox').innerHTML = '等待计算';
+        document.getElementById('verdictBox').className = 'verdict';
+        // 清除三维场景并仅保留基础
+        if(scene) clearVisualization();
+        // 展示空场景中仅有点云坐标轴等，可展示一个提示
+        const dummyRes = computeMinimumZoneWithPlane([{x:0,y:0,z:0},{x:50,y:0,z:0},{x:0,y:50,z:0},{x:100,y:100,z:0}].map(p=>({...p,z:0})));
+        if(dummyRes) render3DFromResult(dummyRes);
+    }
+    
+    // 示例数据：翘曲平面 (中心凸起，对角扭曲)
+    function loadExample() {
+        const example = [0, 12, 8, 5, 38, 10, 2, 6, 21];
+        const ids = ['z00','z01','z02','z10','z11','z12','z20','z21','z22'];
+        ids.forEach((id, idx) => document.getElementById(id).value = example[idx]);
+        processAndVisualize();
+    }
+    
+    // 绑定事件
+    document.getElementById('calcAndVisualizeBtn').addEventListener('click', processAndVisualize);
+    document.getElementById('resetBtn').addEventListener('click', resetData);
+    document.getElementById('exampleBtn').addEventListener('click', loadExample);
+    document.getElementById('toleranceInput').addEventListener('input', () => {
+        const flatSpan = document.getElementById('flatnessValue').innerText;
+        if(flatSpan !== '—') {
+            let flat = parseFloat(flatSpan);
+            if(!isNaN(flat)) {
+                let tol = parseFloat(document.getElementById('toleranceInput').value) || 0;
+                const verdictDiv = document.getElementById('verdictBox');
+                if(flat <= tol) verdictDiv.innerHTML = `✅ 合格  (f = ${flat.toFixed(3)} μm ≤ T = ${tol} μm)`;
+                else verdictDiv.innerHTML = `❌ 不合格 (f = ${flat.toFixed(3)} μm > T = ${tol} μm)`;
+            }
+        }
+    });
+    
+    // 初始化场景
+    initThree();
+    resetData(); // 展示零平面示例
+</script>
+</body>
+</html>
