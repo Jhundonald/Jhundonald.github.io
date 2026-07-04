@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GB/T 1800.1-2020 线性尺寸公差查询 · 江汉大学互换性课程团队</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+        }
+        body {
+            background: #eef2f7;
+            margin: 0;
+            padding: 24px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .main-container {
+            max-width: 1300px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.12);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .header {
+            background: linear-gradient(135deg, #0b2b44 0%, #134b6b 100%);
+            color: white;
+            padding: 24px 28px 20px 28px;
+        }
+        .header h1 {
+            margin: 0 0 6px;
+            font-weight: 600;
+            font-size: 1.9rem;
+            letter-spacing: -0.2px;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.85;
+            font-size: 0.95rem;
+        }
+        .university-badge {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.25);
+            flex-wrap: wrap;
+        }
+        /* 校徽自定义样式 (模拟江汉大学校徽风格) */
+        .jhun-logo {
+            background: #ffffff;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .jhun-logo-inner {
+            background: #005b96;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            color: #ffcd7e;
+            font-family: 'Times New Roman', serif;
+        }
+        .team-text {
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255,255,255,0.12);
+            padding: 6px 16px;
+            border-radius: 40px;
+            backdrop-filter: blur(2px);
+            letter-spacing: 0.3px;
+        }
+        .team-text strong {
+            font-weight: 700;
+            color: #FFE6B0;
+        }
+        .badge {
+            background: #2c5a7a;
+            display: inline-block;
+            border-radius: 40px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            margin-top: 12px;
+        }
+        .grid-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+            padding: 32px 28px;
+            background: #fefefe;
+        }
+        .card {
+            flex: 1;
+            min-width: 280px;
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e9edf2;
+            transition: transform 0.1s ease;
+            overflow: hidden;
+        }
+        .card:hover {
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            background: #f8fafd;
+            padding: 18px 24px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: #0f2b3d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-header h2 span {
+            background: #d9e6f5;
+            font-size: 0.9rem;
+            padding: 2px 8px;
+            border-radius: 30px;
+            color: #0059b3;
+        }
+        .card-body {
+            padding: 24px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #1e2f3e;
+            font-size: 0.9rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #cfdfed;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: 0.2s;
+            background: #fff;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #2c7cb6;
+            box-shadow: 0 0 0 3px rgba(44,124,182,0.1);
+        }
+        .input-hint {
+            font-size: 0.75rem;
+            color: #6c7a8a;
+            margin-top: 5px;
+        }
+        .dual-input {
+            display: flex;
+            gap: 12px;
+        }
+        .dual-input .input-group {
+            flex: 1;
+        }
+        button {
+            background: #1e3a5f;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            margin-top: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        button:hover {
+            background: #0f2d48;
+            transform: translateY(-1px);
+        }
+        .result-box {
+            margin-top: 24px;
+            background: #f0f7fc;
+            border-radius: 20px;
+            padding: 16px 20px;
+            border-left: 5px solid #1e6f9f;
+        }
+        .result-title {
+            font-weight: 700;
+            color: #0a4b6e;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .result-value {
+            font-size: 1.35rem;
+            font-weight: 600;
+            word-break: break-word;
+            color: #0a2b3b;
+        }
+        .result-sub {
+            font-size: 0.85rem;
+            color: #2c6b8f;
+            margin-top: 8px;
+        }
+        hr {
+            margin: 16px 0;
+            border: none;
+            border-top: 1px solid #e2edf5;
+        }
+        .footnote {
+            background: #f9fafc;
+            padding: 16px 28px;
+            border-top: 1px solid #e4e9f0;
+            font-size: 0.75rem;
+            color: #5c6f87;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .course-credit {
+            font-size: 0.8rem;
+            background: #eef2fa;
+            padding: 4px 12px;
+            border-radius: 50px;
+            color: #1a4c6e;
+        }
+        .error {
+            color: #c7362b;
+            background: #ffe8e6;
+            border-radius: 16px;
+            padding: 10px 16px;
+            font-weight: 500;
+        }
+        @media (max-width: 780px) {
+            .grid-cards { padding: 20px; }
+            .card-header h2 { font-size: 1.25rem; }
+            .university-badge { justify-content: center; }
+        }
+        code {
+            background: #eef2f7;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        .jh-logo-text {
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+<div class="main-container">
+    <div class="header">
+        <h1>📐 线性尺寸公差 · ISO代号体系</h1>
+        <p>GB/T 1800.1-2020 产品几何技术规范 (GPS) —— 标准公差数值表 (公称尺寸 ≤3150mm)</p>
+        <!-- 江汉大学团队标识 + 校徽区域 -->
+        <div class="university-badge">
+            <div class="jhun-logo" aria-label="江汉大学校徽">
+                <div class="jhun-logo-inner">
+                    <span style="font-size:22px; font-weight:bold;">江</span>
+                </div>
+            </div>
+            <div class="team-text">
+                🎓 <strong>江汉大学《互换性原理与测量技术》课程团队</strong>  |  公差配合教学支持
+            </div>
+        </div>
+        <div class="badge">基于表1 (P16-P17)  IT01 ~ IT18  |  公差值单位: μm (微米)</div>
+    </div>
+    <div class="grid-cards">
+        <!-- 卡片1: 已知IT等级 → 求标准公差值 -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📏 1. 由公差等级求公差值 <span>IT◉</span></h2>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <label>🔹 公称尺寸 <span style="font-weight:normal;">(mm)</span></label>
+                    <input type="number" id="nominalSize1" step="any" placeholder="例: 45.5, 120, 630" value="50">
+                    <div class="input-hint">范围: 0 ~ 3150 mm (含边界)</div>
+                </div>
+                <div class="input-group">
+                    <label>🔹 标准公差等级 <span style="font-weight:normal;">(IT 等级数字)</span></label>
+                    <input type="text" id="itGrade" placeholder="输入数字: 01, 0, 1, 2 ... 18" value="7">
+                    <div class="input-hint">示例: 01 , 0 , 1 , 2 ... 18 (自动识别IT01/IT0/IT1~IT18)</div>
+                </div>
+                <button id="btnGetTol">⚙️ 计算标准公差值</button>
+                <div id="resultTol" class="result-box">
+                    <div class="result-title">📌 查询结果</div>
+                    <div class="result-value">—</div>
+                    <div class="result-sub">等待输入公称尺寸和IT等级</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 卡片2: 已知上下偏差 → 反查标准公差等级 -->
+        <div class="card">
+            <div class="card-header">
+                <h2>📐 2. 由极限偏差推导公差等级 <span>反查IT</span></h2>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <label>🔹 公称尺寸 <span style="font-weight:normal;">(mm)</span></label>
+                    <input type="number" id="nominalSize2" step="any" placeholder="例: 40, 120, 1000" value="40">
+                </div>
+                <div class="dual-input">
+                    <div class="input-group">
+                        <label>📈 上偏差 (mm)</label>
+                        <input type="text" id="upperDev" placeholder="例: +0.025 或 0.025" value="+0.025">
+                    </div>
+                    <div class="input-group">
+                        <label>📉 下偏差 (mm)</label>
+                        <input type="text" id="lowerDev" placeholder="例: 0 或 -0.025" value="0">
+                    </div>
+                </div>
+                <div class="input-hint" style="margin-top:-8px; margin-bottom:12px;">支持正负号，可输入如 -0.02 , +0.03 , 0.015 等</div>
+                <button id="btnGetGrade">🔍 推断标准公差等级</button>
+                <div id="resultGrade" class="result-box">
+                    <div class="result-title">📌 公差分析</div>
+                    <div class="result-value">—</div>
+                    <div class="result-sub">输入尺寸及上/下偏差后自动计算公差值并与标准表比对</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footnote">
+        <span>⚙️ 依据 GB/T 1800.1-2020 表1 (公称尺寸至3150mm) 标准公差数值 · 数据符合ISO 286-1体系</span>
+        <span class="course-credit">🏛️ 江汉大学智能制造学院 · 互换性原理与测量技术课程团队 出品</span>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 依据 GB/T 1800.1-2020 表1 构建完整公差数据 (尺寸分段 & IT01~IT18)
+    // 尺寸分段：min(mm) < size ≤ max(mm) ；第一分段从 0.1 开始，处理 ≤3 范围采用 min=0
+    // 所有公差值单位：微米 (μm)
+    // --------------------------------------------------------------
+    const toleranceTable = [
+        // 分段 0: 公称尺寸 ≤3 mm
+        { min: 0, max: 3, 
+          values: { "IT01":0.3, "IT0":0.5, "IT1":0.8, "IT2":1.2, "IT3":2, "IT4":3, "IT5":4, "IT6":6, "IT7":10, "IT8":14, "IT9":25, "IT10":40, "IT11":60, "IT12":100, "IT13":140, "IT14":220, "IT15":350, "IT16":540, "IT17":840, "IT18":1300 } },
+        // 分段 1: >3 ~ 6
+        { min: 3, max: 6,
+          values: { "IT01":0.4, "IT0":0.6, "IT1":1, "IT2":1.5, "IT3":2.5, "IT4":4, "IT5":5, "IT6":8, "IT7":12, "IT8":18, "IT9":30, "IT10":48, "IT11":75, "IT12":120, "IT13":180, "IT14":270, "IT15":430, "IT16":700, "IT17":1100, "IT18":1700 } },
+        // 分段 2: >6 ~ 10
+        { min: 6, max: 10,
+          values: { "IT01":0.4, "IT0":0.6, "IT1":1, "IT2":1.5, "IT3":2.5, "IT4":4, "IT5":6, "IT6":9, "IT7":15, "IT8":22, "IT9":36, "IT10":58, "IT11":90, "IT12":150, "IT13":220, "IT14":330, "IT15":520, "IT16":840, "IT17":1300, "IT18":2100 } },
+        // 分段 3: >10 ~ 18
+        { min: 10, max: 18,
+          values: { "IT01":0.5, "IT0":0.8, "IT1":1.2, "IT2":2, "IT3":3, "IT4":5, "IT5":8, "IT6":11, "IT7":18, "IT8":27, "IT9":43, "IT10":70, "IT11":110, "IT12":180, "IT13":270, "IT14":400, "IT15":630, "IT16":1000, "IT17":1600, "IT18":2500 } },
+        // 分段 4: >18 ~ 30
+        { min: 18, max: 30,
+          values: { "IT01":0.6, "IT0":1, "IT1":1.5, "IT2":2.5, "IT3":4, "IT4":6, "IT5":9, "IT6":13, "IT7":21, "IT8":33, "IT9":52, "IT10":84, "IT11":130, "IT12":210, "IT13":330, "IT14":520, "IT15":800, "IT16":1300, "IT17":2100, "IT18":3300 } },
+        // 分段 5: >30 ~ 50
+        { min: 30, max: 50,
+          values: { "IT01":0.6, "IT0":1, "IT1":1.5, "IT2":2.5, "IT3":4, "IT4":7, "IT5":11, "IT6":16, "IT7":25, "IT8":39, "IT9":62, "IT10":100, "IT11":160, "IT12":250, "IT13":390, "IT14":620, "IT15":1000, "IT16":1600, "IT17":2500, "IT18":3900 } },
+        // 分段 6: >50 ~ 80
+        { min: 50, max: 80,
+          values: { "IT01":0.8, "IT0":1.2, "IT1":2, "IT2":3, "IT3":5, "IT4":8, "IT5":13, "IT6":19, "IT7":30, "IT8":46, "IT9":74, "IT10":120, "IT11":190, "IT12":300, "IT13":460, "IT14":740, "IT15":1200, "IT16":1900, "IT17":3000, "IT18":4600 } },
+        // 分段 7: >80 ~ 120
+        { min: 80, max: 120,
+          values: { "IT01":1, "IT0":1.5, "IT1":2.5, "IT2":4, "IT3":6, "IT4":10, "IT5":15, "IT6":22, "IT7":35, "IT8":54, "IT9":87, "IT10":140, "IT11":220, "IT12":350, "IT13":540, "IT14":870, "IT15":1400, "IT16":2200, "IT17":3500, "IT18":5400 } },
+        // 分段 8: >120 ~ 180
+        { min: 120, max: 180,
+          values: { "IT01":1.2, "IT0":2, "IT1":3.5, "IT2":5, "IT3":8, "IT4":12, "IT5":18, "IT6":25, "IT7":40, "IT8":63, "IT9":100, "IT10":160, "IT11":250, "IT12":400, "IT13":630, "IT14":1000, "IT15":1600, "IT16":2500, "IT17":4000, "IT18":6300 } },
+        // 分段 9: >180 ~ 250
+        { min: 180, max: 250,
+          values: { "IT01":2, "IT0":3, "IT1":4.5, "IT2":7, "IT3":10, "IT4":14, "IT5":20, "IT6":29, "IT7":46, "IT8":72, "IT9":115, "IT10":185, "IT11":290, "IT12":460, "IT13":720, "IT14":1150, "IT15":1850, "IT16":2900, "IT17":4600, "IT18":7200 } },
+        // 分段 10: >250 ~ 315
+        { min: 250, max: 315,
+          values: { "IT01":2.5, "IT0":4, "IT1":6, "IT2":8, "IT3":12, "IT4":16, "IT5":23, "IT6":32, "IT7":52, "IT8":81, "IT9":130, "IT10":210, "IT11":320, "IT12":520, "IT13":810, "IT14":1300, "IT15":2100, "IT16":3200, "IT17":5200, "IT18":8100 } },
+        // 分段 11: >315 ~ 400
+        { min: 315, max: 400,
+          values: { "IT01":2.5, "IT0":4, "IT1":7, "IT2":9, "IT3":13, "IT4":18, "IT5":25, "IT6":36, "IT7":57, "IT8":89, "IT9":140, "IT10":230, "IT11":360, "IT12":570, "IT13":890, "IT14":1400, "IT15":2300, "IT16":3600, "IT17":5700, "IT18":8900 } },
+        // 分段 12: >400 ~ 500
+        { min: 400, max: 500,
+          values: { "IT01":3, "IT0":5, "IT1":8, "IT2":10, "IT3":15, "IT4":20, "IT5":27, "IT6":40, "IT7":63, "IT8":97, "IT9":155, "IT10":250, "IT11":400, "IT12":630, "IT13":970, "IT14":1550, "IT15":2500, "IT16":4000, "IT17":6300, "IT18":9700 } },
+        // 分段 13: >500 ~ 630
+        { min: 500, max: 630,
+          values: { "IT01":4, "IT0":6, "IT1":9, "IT2":11, "IT3":17, "IT4":22, "IT5":30, "IT6":44, "IT7":70, "IT8":110, "IT9":175, "IT10":280, "IT11":440, "IT12":700, "IT13":1100, "IT14":1750, "IT15":2800, "IT16":4400, "IT17":7000, "IT18":11000 } },
+        // 分段 14: >630 ~ 800
+        { min: 630, max: 800,
+          values: { "IT01":4, "IT0":6, "IT1":10, "IT2":13, "IT3":19, "IT4":25, "IT5":35, "IT6":50, "IT7":80, "IT8":125, "IT9":200, "IT10":320, "IT11":500, "IT12":800, "IT13":1250, "IT14":2000, "IT15":3200, "IT16":5000, "IT17":8000, "IT18":12500 } },
+        // 分段 15: >800 ~ 1000
+        { min: 800, max: 1000,
+          values: { "IT01":5, "IT0":7, "IT1":11, "IT2":15, "IT3":22, "IT4":28, "IT5":40, "IT6":56, "IT7":90, "IT8":140, "IT9":230, "IT10":360, "IT11":560, "IT12":900, "IT13":1400, "IT14":2300, "IT15":3600, "IT16":5600, "IT17":9000, "IT18":14000 } },
+        // 分段 16: >1000 ~ 1250
+        { min: 1000, max: 1250,
+          values: { "IT01":6, "IT0":8, "IT1":13, "IT2":18, "IT3":26, "IT4":33, "IT5":47, "IT6":66, "IT7":105, "IT8":165, "IT9":260, "IT10":420, "IT11":660, "IT12":1050, "IT13":1650, "IT14":2600, "IT15":4200, "IT16":6600, "IT17":10500, "IT18":16500 } },
+        // 分段 17: >1250 ~ 1600
+        { min: 1250, max: 1600,
+          values: { "IT01":8, "IT0":10, "IT1":15, "IT2":22, "IT3":32, "IT4":40, "IT5":55, "IT6":78, "IT7":125, "IT8":195, "IT9":310, "IT10":500, "IT11":780, "IT12":1250, "IT13":1950, "IT14":3100, "IT15":5000, "IT16":7800, "IT17":12500, "IT18":19500 } },
+        // 分段 18: >1600 ~ 2000
+        { min: 1600, max: 2000,
+          values: { "IT01":10, "IT0":12, "IT1":18, "IT2":26, "IT3":38, "IT4":48, "IT5":65, "IT6":92, "IT7":150, "IT8":230, "IT9":370, "IT10":600, "IT11":920, "IT12":1500, "IT13":2300, "IT14":3700, "IT15":6000, "IT16":9200, "IT17":15000, "IT18":23000 } },
+        // 分段 19: >2000 ~ 2500
+        { min: 2000, max: 2500,
+          values: { "IT01":12, "IT0":15, "IT1":22, "IT2":32, "IT3":46, "IT4":58, "IT5":78, "IT6":110, "IT7":175, "IT8":280, "IT9":440, "IT10":700, "IT11":1100, "IT12":1750, "IT13":2800, "IT14":4400, "IT15":7000, "IT16":11000, "IT17":17500, "IT18":28000 } },
+        // 分段 20: >2500 ~ 3150
+        { min: 2500, max: 3150,
+          values: { "IT01":15, "IT0":18, "IT1":26, "IT2":38, "IT3":55, "IT4":70, "IT5":94, "IT6":135, "IT7":210, "IT8":330, "IT9":540, "IT10":860, "IT11":1350, "IT12":2100, "IT13":3300, "IT14":5400, "IT15":8600, "IT16":13500, "IT17":21000, "IT18":33000 } }
+    ];
+
+    // 辅助函数: 根据公称尺寸获取尺寸分段 (返回索引和分段对象)
+    function getSizeSegment(nominalSize) {
+        if (nominalSize === undefined || nominalSize === null || isNaN(nominalSize)) return null;
+        let size = parseFloat(nominalSize);
+        if (size < 0) return null;
+        if (size > 3150) return null;
+        for (let seg of toleranceTable) {
+            if (size > seg.min && size <= seg.max) return seg;
+            if (seg.min === 0 && size <= seg.max && size >= 0) return seg;
+        }
+        return null;
+    }
+
+    function getStandardTolerance(nominalSize, itKey) {
+        const segment = getSizeSegment(nominalSize);
+        if (!segment) return null;
+        const val = segment.values[itKey];
+        return (val !== undefined && val !== null) ? val : null;
+    }
+
+    function normalizeItGrade(inputStr) {
+        let raw = String(inputStr).trim().toUpperCase();
+        if (raw.startsWith("IT")) raw = raw.slice(2);
+        if (raw === "01") return "IT01";
+        if (raw === "0") return "IT0";
+        let num = parseInt(raw, 10);
+        if (isNaN(num)) return null;
+        if (num >= 1 && num <= 18) return `IT${num}`;
+        return null;
+    }
+
+    function getGradeFromToleranceValue(nominalSize, toleranceMicrons) {
+        const segment = getSizeSegment(nominalSize);
+        if (!segment) return { status: "error", msg: "公称尺寸超出范围或无效 (0~3150mm)" };
+        const gradesOrder = ["IT01","IT0","IT1","IT2","IT3","IT4","IT5","IT6","IT7","IT8","IT9","IT10","IT11","IT12","IT13","IT14","IT15","IT16","IT17","IT18"];
+        let gradeValues = [];
+        for (let g of gradesOrder) {
+            let val = segment.values[g];
+            if (val !== undefined) gradeValues.push({ grade: g, value: val });
+        }
+        if (gradeValues.length === 0) return { status: "error", msg: "无公差数据" };
+        let exact = gradeValues.find(item => Math.abs(item.value - toleranceMicrons) < 1e-6);
+        if (exact) {
+            return { status: "exact", grade: exact.grade, value: exact.value };
+        }
+        let lower = null, upper = null;
+        for (let i = 0; i < gradeValues.length; i++) {
+            if (gradeValues[i].value > toleranceMicrons) {
+                upper = gradeValues[i];
+                if (i > 0) lower = gradeValues[i-1];
+                break;
+            }
+        }
+        if (!upper) {
+            let last = gradeValues[gradeValues.length-1];
+            return { status: "range", message: `大于 IT18 (${last.value} μm)`, aboveMax: true, maxGrade: last };
+        }
+        if (!lower) {
+            let first = gradeValues[0];
+            return { status: "range", message: `小于 ${first.grade} (${first.value} μm)`, belowMin: true, minGrade: first };
+        }
+        return { status: "between", lowerGrade: lower.grade, lowerVal: lower.value, upperGrade: upper.grade, upperVal: upper.value, actual: toleranceMicrons };
+    }
+
+    document.getElementById("btnGetTol").addEventListener("click", function() {
+        const sizeInput = document.getElementById("nominalSize1").value;
+        const gradeInputRaw = document.getElementById("itGrade").value;
+        const resultDiv = document.getElementById("resultTol");
+        
+        if (!sizeInput || sizeInput.trim() === "") {
+            resultDiv.innerHTML = `<div class="result-title">⚠️ 错误</div><div class="error">请输入公称尺寸</div>`;
+            return;
+        }
+        let nominal = parseFloat(sizeInput);
+        if (isNaN(nominal) || nominal < 0 || nominal > 3150) {
+            resultDiv.innerHTML = `<div class="result-title">⚠️ 输入错误</div><div class="error">公称尺寸须在 0 ~ 3150 mm 范围内</div>`;
+            return;
+        }
+        const itKey = normalizeItGrade(gradeInputRaw);
+        if (!itKey) {
+            resultDiv.innerHTML = `<div class="result-title">❌ 等级无效</div><div class="error">请输入正确的IT等级: 01, 0, 1~18 (示例: 7 或 01)</div>`;
+            return;
+        }
+        const tolValue = getStandardTolerance(nominal, itKey);
+        if (tolValue === null) {
+            resultDiv.innerHTML = `<div class="result-title">📐 无对应数据</div><div class="error">当前公称尺寸段无此公差等级数据，请检查尺寸范围 (≤3150mm)</div>`;
+            return;
+        }
+        const tolMM = (tolValue / 1000).toFixed(5);
+        resultDiv.innerHTML = `
+            <div class="result-title">✅ 标准公差值 (${itKey})</div>
+            <div class="result-value">${tolValue} μm  <span style="font-size:0.9rem;"> ( ${tolMM} mm )</span></div>
+            <div class="result-sub">公称尺寸 ${nominal} mm · 尺寸段符合 GB/T 1800.1 表1</div>
+        `;
+    });
+
+    document.getElementById("btnGetGrade").addEventListener("click", function() {
+        const sizeVal = document.getElementById("nominalSize2").value;
+        const upperRaw = document.getElementById("upperDev").value;
+        const lowerRaw = document.getElementById("lowerDev").value;
+        const resultDiv = document.getElementById("resultGrade");
+        if (!sizeVal || sizeVal.trim() === "") {
+            resultDiv.innerHTML = `<div class="result-title">⚠️ 缺少尺寸</div><div class="error">请输入公称尺寸</div>`;
+            return;
+        }
+        let nominal = parseFloat(sizeVal);
+        if (isNaN(nominal) || nominal < 0 || nominal > 3150) {
+            resultDiv.innerHTML = `<div class="result-title">⚠️ 尺寸无效</div><div class="error">公称尺寸范围 0~3150 mm</div>`;
+            return;
+        }
+        function parseDev(valStr) {
+            if (valStr === undefined || valStr === "") return NaN;
+            let cleaned = valStr.trim().replace(/^\+/, '');
+            if (cleaned === "") return 0;
+            return parseFloat(cleaned);
+        }
+        let upper = parseDev(upperRaw);
+        let lower = parseDev(lowerRaw);
+        if (isNaN(upper) || isNaN(lower)) {
+            resultDiv.innerHTML = `<div class="result-title">⚠️ 偏差解析错误</div><div class="error">请正确输入上下偏差数值，如 +0.025 , -0.02 , 0 </div>`;
+            return;
+        }
+        let tolerance = Math.abs(upper - lower);
+        let toleranceMicrons = tolerance * 1000;
+        if (toleranceMicrons < 1e-6) {
+            resultDiv.innerHTML = `<div class="result-title">🔍 公差为零</div><div class="result-value">上偏差 = 下偏差</div><div class="result-sub">公差值趋近0，无法确定标准公差等级 (通常无公差要求)</div>`;
+            return;
+        }
+        const gradeResult = getGradeFromToleranceValue(nominal, toleranceMicrons);
+        if (gradeResult.status === "error") {
+            resultDiv.innerHTML = `<div class="result-title">❌ 查询失败</div><div class="error">${gradeResult.msg}</div>`;
+            return;
+        }
+        if (gradeResult.status === "exact") {
+            resultDiv.innerHTML = `<div class="result-title">🎯 精确匹配标准公差等级</div>
+                <div class="result-value">${gradeResult.grade}</div>
+                <div class="result-sub">实际公差值 = ${toleranceMicrons.toFixed(3)} μm &nbsp;|&nbsp; 对应标准公差 = ${gradeResult.value} μm</div>`;
+        } else if (gradeResult.status === "between") {
+            resultDiv.innerHTML = `<div class="result-title">📊 公差等级介于</div>
+                <div class="result-value">${gradeResult.upperGrade} 与 ${gradeResult.lowerGrade} 之间</div>
+                <div class="result-sub">实际公差值: ${toleranceMicrons.toFixed(3)} μm &nbsp;| ${gradeResult.lowerGrade}=${gradeResult.lowerVal} μm &nbsp; ${gradeResult.upperGrade}=${gradeResult.upperVal} μm</div>`;
+        } else if (gradeResult.status === "range" && gradeResult.aboveMax) {
+            resultDiv.innerHTML = `<div class="result-title">⚠️ 超出标准范围</div><div class="result-value">大于 IT18 (${gradeResult.maxGrade.value} μm)</div><div class="result-sub">实际公差值 ${toleranceMicrons.toFixed(3)} μm 超过表1最大IT18等级，建议降低精度要求或定制公差。</div>`;
+        } else if (gradeResult.status === "range" && gradeResult.belowMin) {
+            resultDiv.innerHTML = `<div class="result-title">✨ 超高精度</div><div class="result-value">小于 ${gradeResult.minGrade.grade} (${gradeResult.minGrade.value} μm)</div><div class="result-sub">实际公差值 ${toleranceMicrons.toFixed(3)} μm 比IT01更高, 已超越标准公差等级表。</div>`;
+        } else {
+            resultDiv.innerHTML = `<div class="result-title">🔍 分析结果</div><div class="result-value">无法精确归类</div><div class="result-sub">${gradeResult.message || "请检查输入偏差值"}</div>`;
+        }
+    });
+</script>
+</body>
+</html>
